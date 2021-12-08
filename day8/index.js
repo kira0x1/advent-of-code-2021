@@ -17,7 +17,7 @@ for (const line of input) {
 
   for (const w of n) {
     const f = compareNumbers(w, line);
-    if (f) return;
+    return;
 
     if (w.length === seven) {
       wMap.set("seven", w);
@@ -48,7 +48,7 @@ function compareNumbers(w, line) {
 
   let ones = [];
   let sevens = [];
-  let nines = [];
+  let sixes = [];
   let fours = [];
   let fives = [];
 
@@ -69,7 +69,7 @@ function compareNumbers(w, line) {
     }
 
     if (s.length === 6) {
-      nines = getCharArray(s);
+      sixes.push(getCharArray(s));
     }
 
     if (s.length === 4) {
@@ -78,44 +78,35 @@ function compareNumbers(w, line) {
   }
 
   topBar = getCharDiff(sevens, ones);
-  console.log(`\n\nTOP BAR: ${topBar}\n`);
+  console.log(`\nTOP BAR: ${topBar}\n`);
 
-  // if (sevens.length === 0 || ones.length === 0) return false;
+  rightBars = ones;
+  console.log(`SIDE BAR: ${rightBars}\n`);
 
-  console.log(`\nNine`);
-  console.log(nines);
+  let nSix = undefined;
+  let topRight = undefined;
+  let bottomRight = undefined;
 
-  console.log(`\nSeven`);
-  console.log(sevens);
+  for (const x of sixes) {
+    let sideCount = 0;
 
-  console.log(`\nOne`);
-  console.log(ones);
+    for (const c of x) {
+      if (rightBars.includes(c)) sideCount++;
+    }
 
-  console.log(`\nFour`);
-  console.log(fours);
+    if (sideCount === 1) {
+      nSix = x;
 
-  console.log(`\nFives`);
-  console.log(fives);
+      topRight = rightBars.find((c) => !nSix.includes(c));
+      bottomRight = rightBars.find((c) => nSix.includes(c));
+      break;
+    }
+  }
 
-  const inFiveButNotFour = getCharDiff(fives, fours);
+  console.log(`Six: ${nSix}`);
 
-  const nineSevenDiff = getCharDiff(nines, sevens);
-  const nineOnesDiff = getCharDiff(nines, ones);
-  const nineFourDiff = getCharDiff(nines, fours);
-
-  const charDiff = getCharDiff(sevens, ones);
-
-  console.log(`\nIn Five but not four`);
-  console.log(inFiveButNotFour);
-
-  // console.log(`\nIn Seven but not One`);
-  // console.log(charDiff);
-
-  // console.log(`\nIn nine/zero but not seven`);
-  // console.log(nineSevenDiff);
-
-  // console.log(`\nIn nine/zero but not one`);
-  // console.log(nineOnesDiff);
+  console.log(`\ntopRight: ${topRight}`);
+  console.log(`\nbottomRight: ${bottomRight}`);
 
   return true;
 }
