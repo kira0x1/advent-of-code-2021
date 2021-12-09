@@ -11,7 +11,7 @@ for (let i = 0; i < input.length; i++) {
 for (let y = 0; y < input.length; y++) {
   const row = input[y].split("");
   for (let x = 0; x < max; x++) {
-    map[y][x] = row[x];
+    map[y][x] = Number(row[x]);
   }
 }
 
@@ -36,10 +36,10 @@ function memoize(f) {
   };
 }
 
-function getXBasin(y, x, delta, basin, yDelta) {
+function getXBasin(y, x, delta, basin) {
   if (delta === 1 && x === max) return basin;
   if (delta === -1 && x === 0) return basin;
-  const n = Number(map[y][x + delta]);
+  const n = map[y][x + delta];
   if (isNaN(n)) return basin;
   //   console.log(n);
   if (n === 9) return basin;
@@ -50,25 +50,24 @@ function getXBasin(y, x, delta, basin, yDelta) {
   //   yMemoized(y, x + delta, -1, basin);
   //   yMemoized(y, x + delta, 1, basin);
 
-  if (yDelta) {
-    yMemoized(y, x + delta, yDelta, basin);
-  }
-
   return getXBasin(y, x + delta, delta, basin);
 }
 
-function getYBasin(y, x, delta, basin) {
+function getYBasin(y, x, delta, basin, ignoreSides = false) {
   if (delta === -1 && y === 0) return basin;
   if (delta === 1 && y === input.length - 1) return basin;
-  const n = Number(map[y + delta][x]);
+  const n = map[y + delta][x];
   if (isNaN(n)) return basin;
   //   console.log(`x: ${x}, y: ${y + delta} => ${n}`);
   //   console.log(n);
   if (n === 9) return basin;
   basin.push({ x: x, y: y + delta, v: n });
 
-  xMemoized(y + delta, x, -1, basin, 1);
-  xMemoized(y + delta, x, 1, basin, 1);
+  if (!ignoreSides) {
+    xMemoized(y + delta, x, -1, basin, 1);
+    xMemoized(y + delta, x, 1, basin, 1);
+  }
+
   //   xMemoized(y + delta, x, 1, basin, -1);
 
   return getYBasin(y + delta, x, delta, basin);
@@ -78,19 +77,36 @@ const yMemoized = memoize(getYBasin);
 const xMemoized = memoize(getXBasin);
 
 function drawBasin(y, x) {
-  const basin = [{ x: x, y: y, v: Number(map[y][x]) }];
+  const basin = [{ x: x, y: y, v: map[y][x] }];
   const rightBasin = xMemoized(y, x, 1, basin);
   const leftBasin = xMemoized(y, x, -1, basin);
   const belowBasin = yMemoized(y, x, 1, basin);
   const aboveBasin = yMemoized(y, x, -1, basin);
-  console.log(`basin length: ${basin.length}`);
+  console.log(`basin length: ${basin.length + 1}`);
+  basinLengths.push(basin.length + 1);
+
+  for (const b of basin) {
+    yMemoized(b.y, b.x, 1, basin, true);
+  }
+
+  for (const b of basin) {
+    const bx = b.x;
+    const by = b.y;
+
+    if (bx === max - 1 || bx === -1) continue;
+    if (by === input.length || by === -1) continue;
+    yMemoized(by, bx, -1, basin, true);
+  }
 
   return basin;
 }
 
 let basin = [];
+
+const basinLengths = [];
+
 function compareAdjacent(y, x) {
-  const n = Number(map[y][x]);
+  const n = map[y][x];
 
   const left = x === 0 ? undefined : map[y][x - 1];
   const right = map[y][x + 1];
@@ -100,7 +116,7 @@ function compareAdjacent(y, x) {
   const adj = [left, right, up, down].filter((c) => c !== undefined);
 
   for (const a of adj) {
-    const an = Number(a);
+    const an = a;
     if (an <= n) return false;
   }
 
@@ -119,23 +135,25 @@ for (let y = 0; y < input.length; y++) {
   }
 }
 
-console.log(`\n`);
+let sortedLengths = basinLengths.sort((a, b) => b - a);
+sortedLengths = sortedLengths.slice(0, 3);
 
-for (let y = 0; y < input.length; y++) {
-  let row = "";
-  for (let x = 0; x < max; x++) {
-    let isInBasin = false;
+console.log(sortedLengths[0] * sortedLengths[1] * sortedLengths[2]);
 
-    for (const b of basin) {
-      if (b.x === x && b.y === y) isInBasin = true;
-    }
+// console.log(`\n`);
 
-    if (isInBasin) row += chalk`{bgRed.bold ${map[y][x]}}`;
-    else row += map[y][x];
-  }
+// for (let y = 0; y < input.length; y++) {
+//   let row = "";
+//   for (let x = 0; x < max; x++) {
+//     let isInBasin = false;
 
-  console.log(chalk`${row}`);
-}
+//     for (const b of basin) {
+//       if (b.x === x && b.y === y) isInBasin = true;
+//     }
 
-// const b = drawBasin(2, 2);
-// console.log(b);
+//     if (isInBasin) row += chalk`{bgRed.bold ${map[y][x]}}`;
+//     else row += map[y][x];
+//   }
+
+//   console.log(chalk`${row}`);
+// }
