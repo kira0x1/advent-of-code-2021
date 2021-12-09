@@ -37,13 +37,14 @@ function memoize(f) {
 }
 
 function getXBasin(y, x, delta, basin) {
-  if (delta === 1 && x === max) return basin;
+  if (delta === 1 && x === max - 1) return basin;
   if (delta === -1 && x === 0) return basin;
   const n = map[y][x + delta];
-  if (isNaN(n)) return basin;
-  //   console.log(n);
   if (n === 9) return basin;
-  basin.push({ x: x + delta, y: y, v: n });
+
+  if (!basin.find((b) => b.x === x + delta && b.y === y)) {
+    basin.push({ x: x + delta, y: y, v: n });
+  }
 
   //   console.log(`x: ${x + delta}, y: ${y} => ${n}`);
   //   const belowBasin = getYBasin(y, x + delta, 1, basin);
@@ -57,11 +58,15 @@ function getYBasin(y, x, delta, basin, ignoreSides = false) {
   if (delta === -1 && y === 0) return basin;
   if (delta === 1 && y === input.length - 1) return basin;
   const n = map[y + delta][x];
-  if (isNaN(n)) return basin;
+
   //   console.log(`x: ${x}, y: ${y + delta} => ${n}`);
   //   console.log(n);
+
   if (n === 9) return basin;
-  basin.push({ x: x, y: y + delta, v: n });
+
+  if (!basin.find((b) => b.x === x && b.y === y + delta)) {
+    basin.push({ x: x, y: y + delta, v: n });
+  }
 
   if (!ignoreSides) {
     xMemoized(y + delta, x, -1, basin, 1);
@@ -78,31 +83,35 @@ const xMemoized = memoize(getXBasin);
 
 function drawBasin(y, x) {
   const basin = [{ x: x, y: y, v: map[y][x] }];
-  const rightBasin = xMemoized(y, x, 1, basin);
-  const leftBasin = xMemoized(y, x, -1, basin);
+  const rightBasin = [];
+  const leftBasin = [];
+
+  xMemoized(y, x, 1, rightBasin);
+  xMemoized(y, x, -1, leftBasin);
+
+  basin.push(...rightBasin);
+  basin.push(...leftBasin);
+
   const belowBasin = yMemoized(y, x, 1, basin);
   const aboveBasin = yMemoized(y, x, -1, basin);
-  console.log(`basin length: ${basin.length + 1}`);
-  basinLengths.push(basin.length + 1);
-
-  for (const b of basin) {
-    yMemoized(b.y, b.x, 1, basin, true);
-  }
 
   for (const b of basin) {
     const bx = b.x;
     const by = b.y;
 
-    if (bx === max - 1 || bx === -1) continue;
-    if (by === input.length || by === -1) continue;
-    yMemoized(by, bx, -1, basin, true);
+    // if (bx === max - 1) continue;
+    // if (by === input.length) continue;
+    yMemoized(by, bx, -1, basin);
+    yMemoized(by, bx, 1, basin);
   }
+
+  console.log(`basin length: ${basin.length}`);
+  basinLengths.push(basin.length);
 
   return basin;
 }
 
-let basin = [];
-
+const basins = [];
 const basinLengths = [];
 
 function compareAdjacent(y, x) {
@@ -122,7 +131,8 @@ function compareAdjacent(y, x) {
 
   // console.log(`x: ${x}, y: ${y} => ${n}`);
   riskLevels += n + 1;
-  basin.push(...drawBasin(y, x));
+  // basins.push(...drawBasin(y, x));
+  drawBasin(y, x);
 
   return true;
 }
@@ -138,6 +148,8 @@ for (let y = 0; y < input.length; y++) {
 let sortedLengths = basinLengths.sort((a, b) => b - a);
 sortedLengths = sortedLengths.slice(0, 3);
 
+console.log([sortedLengths[0], sortedLengths[1], sortedLengths[2]]);
+
 console.log(sortedLengths[0] * sortedLengths[1] * sortedLengths[2]);
 
 // console.log(`\n`);
@@ -147,7 +159,7 @@ console.log(sortedLengths[0] * sortedLengths[1] * sortedLengths[2]);
 //   for (let x = 0; x < max; x++) {
 //     let isInBasin = false;
 
-//     for (const b of basin) {
+//     for (const b of basins) {
 //       if (b.x === x && b.y === y) isInBasin = true;
 //     }
 
