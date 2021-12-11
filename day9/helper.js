@@ -6,7 +6,7 @@ const testString = `2199943210
 8767896789
 9899965678`;
 
-const test = false;
+const test = true;
 const file = test ? testString : fs.readFileSync("./input.txt").toString();
 
 const input = file.split("\n");

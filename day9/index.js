@@ -105,7 +105,7 @@ function drawBasin(y, x) {
     yMemoized(by, bx, 1, basin);
   }
 
-  console.log(`basin length: ${basin.length}`);
+  // console.log(`basin length: ${basin.length}`);
   basinLengths.push(basin.length);
 
   return basin;
@@ -131,8 +131,8 @@ function compareAdjacent(y, x) {
 
   // console.log(`x: ${x}, y: ${y} => ${n}`);
   riskLevels += n + 1;
-  // basins.push(...drawBasin(y, x));
-  drawBasin(y, x);
+  basins.push(...drawBasin(y, x));
+  // drawBasin(y, x);
 
   return true;
 }
@@ -148,24 +148,24 @@ for (let y = 0; y < input.length; y++) {
 let sortedLengths = basinLengths.sort((a, b) => b - a);
 sortedLengths = sortedLengths.slice(0, 3);
 
-console.log([sortedLengths[0], sortedLengths[1], sortedLengths[2]]);
+// console.log([sortedLengths[0], sortedLengths[1], sortedLengths[2]]);
 
-console.log(sortedLengths[0] * sortedLengths[1] * sortedLengths[2]);
+// console.log(sortedLengths[0] * sortedLengths[1] * sortedLengths[2]);
 
 // console.log(`\n`);
 
-// for (let y = 0; y < input.length; y++) {
-//   let row = "";
-//   for (let x = 0; x < max; x++) {
-//     let isInBasin = false;
+for (let y = 0; y < input.length; y++) {
+  let row = "";
+  for (let x = 0; x < max; x++) {
+    let isInBasin = false;
 
-//     for (const b of basins) {
-//       if (b.x === x && b.y === y) isInBasin = true;
-//     }
+    for (const b of basins) {
+      if (b.x === x && b.y === y) isInBasin = true;
+    }
 
-//     if (isInBasin) row += chalk`{bgRed.bold ${map[y][x]}}`;
-//     else row += map[y][x];
-//   }
+    if (isInBasin) row += chalk`{bgRed.bold ${map[y][x]}}`;
+    else row += map[y][x];
+  }
 
-//   console.log(chalk`${row}`);
-// }
+  console.log(chalk`${row}`);
+}
