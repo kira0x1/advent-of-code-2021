@@ -16,50 +16,62 @@ pairMap.set(openers[2], closers[2]);
 pairMap.set(openers[3], closers[3]);
 
 const chunks = [];
+const corrupedLines = [];
+
+function findChunk() {
+  for (const line of corrupedLines) {
+    let depth = 1;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+
+      for (let x = i + 1; x < line.length; x++) {
+        switch (line[x]) {
+          case c:
+            depth++;
+            break;
+          case pairMap.get(c):
+            if (--depth === 0) {
+              return;
+            }
+            break;
+        }
+
+        // console.log(pairMap.get(c));
+        illegals.push(pairMap.get(c));
+        break;
+      }
+    }
+  }
+}
 
 for (const line of input) {
+  findCorrupted(line);
+}
+
+function findCorrupted(line) {
+  let depth = 1;
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
-
     if (openers.includes(c)) {
-      findChunk(c, i, [...line]);
-      //   console.log(x.join(""));
-      break;
-    }
-  }
-}
-
-function findChunk(o, index, line, ch = []) {
-  const target = pairMap.get(o);
-  ch = [...ch, o];
-
-  //   const filter = line.filter((l) => l === target || l === o);
-  //   console.log(filter);
-
-  for (let i = index + 1; i < line.length; i++) {
-    const c = line[i];
-
-    if (c === o) {
-      //   findChunk(c, i + 1, line, ch);
-      //   return;
-    }
-
-    if (openers.includes(c)) {
-      return findChunk(c, i, line, ch);
-    }
-
-    if (closers.includes(c) && c !== target) {
-      //   console.log(target);
-      //   console.log(c);
-      //   console.log("--");
-      illegals.push(c);
-      //   ch.push(c);
-      return;
+      for (let x = i + 1; x < line.length; x++) {
+        switch (line[x]) {
+          case c:
+            depth++;
+            break;
+          case pairMap.get(c):
+            if (--depth === 0) {
+              break;
+            }
+            break;
+        }
+      }
     }
   }
 
-  return ch;
+  if (depth > 0) corrupedLines.push(line);
 }
+
+findChunk();
 
 let paran = 0;
 let bracket = 0;
@@ -102,10 +114,14 @@ function logChunks() {
 // console.table(openChunks);
 // console.table(closeChunks);
 
-function findOpeners(c) {
-  const found = openers.find((o) => o === c);
-  openingChunk = found;
-  console.log(found);
+function findOpeners(line) {
+  const op = [];
+  let i = 0;
+  for (const c of line) {
+    if (openers.includes(c)) op.push({ c, i });
+    i++;
+  }
+  return op;
 }
 
 function findClosers(c) {
