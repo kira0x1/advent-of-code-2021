@@ -10,64 +10,31 @@ pairMap.set(openers[2], closers[2]);
 pairMap.set(openers[3], closers[3]);
 
 const illegals = [];
-
-const line = input[1];
-console.log(line.length);
-getChunk(line);
+const brackets = "[]{}()<>";
 
 for (const line of input) {
+  const res = isBalanced(line);
+  if (res) continue;
 }
 
-/**
- *
- * @param {string} line
- */
-function getChunk(line) {
-  openersStack = [];
+function isBalanced(input) {
+  const stack = [];
 
-  let firstOpener = undefined;
+  for (let b of input) {
+    const bracketIndex = brackets.indexOf(b);
 
-  let openerIndex = 0;
-  let i = 0;
-  for (i = 0; i < line.length; i++) {
-    const c = line[i];
-    openerIndex = i + 1;
-    if (openers.includes(c)) {
-      firstOpener = c;
-      openersStack.push(c);
+    if (bracketIndex % 2 === 0) {
+      stack.push(bracketIndex + 1);
+    } else {
+      const p = stack.pop();
+      if (p !== bracketIndex) {
+        illegals.push(b);
+        return false;
+      }
     }
   }
 
-  let depth = openersStack.length;
-  let target = pairMap.get(firstOpener);
-  let firstChunk = undefined;
-  let clos = undefined;
-
-  for (i = 0; i < line.length; i++) {
-    const c = line[i];
-
-    if (c === firstOpener) {
-      depth++;
-    }
-
-    if (c === target) {
-      if (--depth === 0)
-        return getChunk(
-          (firstChunk = line.slice(openerIndex + 1, line.length))
-        );
-    }
-
-    if (depth === 1 && closers.includes(c)) {
-      clos = c;
-    }
-  }
-
-  if (clos === undefined) {
-    return getChunk(line.slice(openerIndex + 1, line.length));
-  } else {
-    illegals.push(clos);
-    console.log(`expecting ${target} but recieved ${clos}`);
-  }
+  return stack;
 }
 
 let paran = 0;
