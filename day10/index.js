@@ -12,12 +12,16 @@ pairMap.set(openers[3], closers[3]);
 const illegals = [];
 const brackets = "[]{}()<>";
 
+const scores = [];
+
 for (const line of input) {
   const res = isBalanced(line);
-  if (res) continue;
+  if (!res) continue;
 }
 
 function isBalanced(input) {
+  let score = 0;
+
   const stack = [];
 
   for (let b of input) {
@@ -28,37 +32,44 @@ function isBalanced(input) {
     } else {
       const p = stack.pop();
       if (p !== bracketIndex) {
-        illegals.push(b);
+        // illegals.push(b);
         return false;
       }
     }
   }
 
+  let row = "";
+  for (let i = stack.length; i >= 0; i--) {
+    const s = brackets[stack[i]];
+    if (s) {
+      row += s;
+    }
+  }
+
+  for (const b of row) {
+    score *= 5;
+
+    switch (b) {
+      case ")":
+        score += 1;
+        break;
+      case "]":
+        score += 2;
+        break;
+      case "}":
+        score += 3;
+        break;
+      case ">":
+        score += 4;
+        break;
+    }
+  }
+
+  scores.push(score);
+
   return stack;
 }
 
-let paran = 0;
-let bracket = 0;
-let squigle = 0;
-let gt = 0;
-
-for (const i of illegals) {
-  if (i === ">") gt++;
-  if (i === ")") paran++;
-  if (i === "}") squigle++;
-  if (i === "]") bracket++;
-}
-
-console.log(`): ${paran}`);
-console.log(`]: ${bracket}`);
-console.log(`}: ${squigle}`);
-console.log(`>: ${gt}`);
-
-const paranScore = paran * 3;
-const bracketScore = bracket * 57;
-const squiggleScore = squigle * 1197;
-const gtScore = gt * 25137;
-
-console.log(
-  `final score: ${paranScore + bracketScore + squiggleScore + gtScore}`
-);
+scores.sort((a, b) => a - b);
+const middle = Math.floor(scores.length / 2);
+console.log(scores[middle]);

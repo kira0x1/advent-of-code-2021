@@ -17,7 +17,7 @@ const testString = `[({(<(())[]>[[{[]{<()<>>
 // [<(<(<(<{}))><([]([]()
 // <{([([[(<>()){}]>(<<{{`;
 
-const test = true;
+const test = false;
 const file = test ? testString : fs.readFileSync("./input.txt").toString();
 const input = file.split("\n");
 
