@@ -87,7 +87,7 @@ class Graph {
     visitedList.push(first);
 
     while (visitedList.length > 0) {
-      const node = visitedList.pop();
+      const node = visitedList.shift();
       if (node && !visited.has(node)) {
         yield node;
         visited.set(node);

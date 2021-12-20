@@ -1,67 +1,22 @@
 const input = require("./inputHelper");
 const { Graph, Node } = require("./util");
 
-const graph = new Map();
+const graph = new Graph(Graph.UNDIRECTED);
 
-for (const line of input) {
-  const points = line.split("-");
+const [first] = graph.addEdge(1, 2);
 
-  const p1 = points[0];
-  const p2 = points[1];
+graph.addEdge(1, 3);
+graph.addEdge(1, 4);
+graph.addEdge(5, 2);
+graph.addEdge(6, 3);
+graph.addEdge(7, 3);
+graph.addEdge(8, 4);
+graph.addEdge(9, 5);
+graph.addEdge(10, 6);
 
-  if (!graph.has(p1)) graph.set(p1, []);
+const bfsFromFirst = graph.bfs(first);
 
-  const connections = graph.get(p1);
-  connections.push(p2);
-
-  graph.set(p1, connections);
-}
-
-function logGraph() {
-  const graphKeys = [];
-
-  for (const { 0: key, 1: connections } of graph) {
-    graphKeys.push(key);
-  }
-
-  const start = graphKeys.shift();
-  console.log(`  ${start}`);
-  const web = graphKeys.length;
-  let webString = "";
-  let endRow = "";
-
-  for (let i = 0; i < web; i++) {
-    if (i === web - 1) {
-      webString += "  \\";
-      endRow += "  / ";
-      continue;
-    }
-
-    if (i === 0) {
-      webString += "  / ";
-      endRow += "  \\ ";
-      continue;
-    }
-
-    webString += "|";
-    endRow += "|";
-  }
-
-  endRow += "\n";
-  for (let i = 0; i < web / 2; i++) {
-    endRow += " ";
-  }
-
-  endRow += "  end";
-
-  let connections = "";
-  for (const conn of graphKeys) {
-    connections += ` ${conn}    `;
-  }
-
-  console.log(webString);
-  console.log(connections);
-  console.log(endRow);
-}
-
-logGraph();
+console.log(bfsFromFirst.next().value.value); // 1
+console.log(bfsFromFirst.next().value.value); // 2
+console.log(bfsFromFirst.next().value.value); // 3
+console.log(bfsFromFirst.next().value.value); // 4
